@@ -1,4 +1,25 @@
 <?php
+if(isset($_POST['create_user'])){
+    $username = $database->escape($_POST['username']);
+    $user_firstname = $database->escape($_POST['user_firstname']);
+    $user_lastname = $database->escape($_POST['user_lastname']);
+    $user_password = $database->escape($_POST['user_password']);
+    $user_email = $database->escape($_POST['user_email']);
+    // $user_image = $_POST['user_image'];
+//  move_uploaded_file($post_image_tmp, "../images/$post_image" );
+    $user_password = password_hash($user_password , PASSWORD_BCRYPT , array('cost'=>10));
+  $query = "INSERT INTO users (username,user_firstname,user_lastname,user_password,user_email,user_role) ";
+$query .= "VALUES('$username', '$user_firstname', '$user_lastname', '$user_password','$user_email','subscriber')";
+ $add_user = mysqli_query($connection,$query);
+ if(!$add_user){
+  die("Query failed ".mysqli_error($connection));
+ }
+ echo "<div class='alert alert-success' role='alert'>
+  User Created <a href='users.php' class='alert-link'>View User</a>
+</div>";
+}
+?>
+<?php
 if(isset($_GET['edit'])){
  $user_id = $database->escape($_GET['edit']);
  $user_result = User::fetch_specific_user($user_id);
@@ -36,26 +57,37 @@ if(isset($_POST['edit_user_btn'])){
 //   exit();
 // }
 ?>
-    <form action="users.php?source=edit_user&edit=<?php echo $user_id?>" method="post" enctype="multipart/form-data">    
+
+<?php
+if(isset($_GET['source'])){
+    if($_GET['source']==='edit_user'){
+        $edit=true;
+    }else{
+        $edit=false;
+    }
+}
+?>
+    <form action="" method="post" enctype="multipart/form-data">    
      
      
       <div class="form-group">
          <label for="username">UserName</label>
-          <input type="text" class="form-control" name="username" id="username" value=<?php echo $username?>>
+          <input type="text" class="form-control" name="username" id="username" value=<?php echo $edit?$username:"" ?>>
       </div>
        <div class="form-group">
          <label for="user_firstname">FirstName</label>
-          <input type="text" class="form-control" name="user_firstname" id="user_firstname" value=<?php echo $user_firstname?>>
+          <input type="text" class="form-control" name="user_firstname" id="user_firstname" value=<?php echo $edit?$user_firstname:""?>>
       </div>
 
       <div class="form-group">
          <label for="user_lastname">LastName</label>
-          <input type="text" class="form-control" name="user_lastname" id="user_lastname" value=<?php echo $user_lastname?>>
+          <input type="text" class="form-control" name="user_lastname" id="user_lastname" value=<?php echo $edit?$user_lastname:""?>>
       </div>
       <div class="form-group">
        <label for="user_role">Role</label>
        <select class="form-select" name="user_role" id="user_role">
         <?php
+        if($edit){
          if($user_role=='admin'){
           echo "<option value='subscriber' >subscriber</option>
           <option value='admin' selected>admin</option>
@@ -65,6 +97,11 @@ if(isset($_POST['edit_user_btn'])){
           <option value='subscriber' selected>subscriber</option>
           ";
          }
+        }else{
+            echo "<option value='admin' >admin</option>
+          <option value='subscriber'>subscriber</option>
+          ";
+        }
         ?>
        
        
@@ -77,7 +114,7 @@ if(isset($_POST['edit_user_btn'])){
       </div>
        <div class="form-group">
          <label for="user_email">Email</label>
-          <input type="email" class="form-control" name="user_email" id="user_email" value=<?php echo $user_email?>>
+          <input type="email" class="form-control" name="user_email" id="user_email" value=<?php echo $edit?$user_email:""?>>
       </div>
       
       
@@ -88,7 +125,7 @@ if(isset($_POST['edit_user_btn'])){
       </div>
 
        <div class="form-group">
-          <input class="btn btn-primary" type="submit" name="edit_user_btn" value="Edit User">
+          <input class="btn btn-primary" type="submit" name="<?php echo $edit?"edit_user_btn":"create_user";?>" value="<?php echo $edit?"Edit user":"Create user";?>">
       </div>
 
 

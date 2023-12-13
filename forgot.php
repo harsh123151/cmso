@@ -3,25 +3,24 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 ?>
-<?php  include "includes/db.php"; ?>
-<?php  include "includes/header.php"; ?>
+<?php  include "includes/header.php"; 
+use MyApp\Helper\Helper;
+?>
 <?php 
 require 'vendor/autoload.php';
 ?>
 <?php 
 if(!isset($_GET['forgot'])){
- redirect('/cms/');
+ Helper::redirect('/cms/');
 }
 
-if(ifItIsMethod('post')){
+if(Validation::ifItIsMethod('post')){
  if(isset($_POST['email'])){
- $enter_email = escape(trim($_POST['email']));
- if(user_email_exist($enter_email)){ 
+ $enter_email = $database->escape(trim($_POST['email']));
+ if(User::user_email_exist($enter_email)){ 
   $length = 50;
   $token = bin2hex(openssl_random_pseudo_bytes($length));
-  $query_token = "UPDATE users SET token='$token' where user_email='$enter_email'";
-  $token_result = mysqli_query($connection,$query_token);
-  confirm_query($connection, $token_result);
+  $token_result = $database->query("UPDATE users SET token='$token' where user_email='$enter_email'");
   $mail = new PHPMailer();
   $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      
     $mail->isSMTP();                                           
@@ -39,7 +38,7 @@ if(ifItIsMethod('post')){
     $mail->isHTML(true);                             
     $mail->Subject = 'Forgot password link';
     $mail->Body    = "<p>Click on the link to rest password
-    <a href='https:://localhost/cms/reset.php?email=$enter_email&token=$token'>https://google.com</a>
+    <a href='http:://localhost/cms/reset.php?email=$enter_email&token=$token'>http:://localhost/cms/reset.php?email=$enter_email&token=$token</a>
     </p>";
     if($mail->send()){
         $message_sent=true;

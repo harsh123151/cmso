@@ -1,7 +1,21 @@
-<?php session_start()?>
-<?php include "Functions/escape.php"?>
-<?php include 'Functions/function.php';?>
+<?php 
+include "admin/includes/classes/Session.php"; ?>
+<?php use MyApp\Session; ?>
+<?php Session::start_session()?>
+<?php include "includes/Database.php";?>
+<?php include "admin/includes/classes/Helper.php"?>
+<?php include "admin/includes/classes/Post.php"?>
+<?php include "admin/includes/classes/Authentication.php"?>
+<?php include "admin/includes/classes/User.php"?>
+<?php include "admin/includes/classes/Like.php"?>
+<?php include "admin/includes/classes/Validation.php"?>
+<?php 
+include "admin/includes/classes/Category.php";
+
+?>
+
 <?php
+
 // if(isset($_SESSION['user_role'])){
 //     if($_SESSION['user_role']==='admin'){
 //         header("Location: admin");

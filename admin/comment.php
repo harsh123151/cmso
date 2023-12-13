@@ -1,7 +1,7 @@
 <?php include 'includes/admin_header.php';
 
 ?>
-
+<?php use MyApp\Session; ?>
     <div id="wrapper">
 
         <!-- Navigation -->
@@ -14,9 +14,9 @@
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
-                        <h1 class="page-header">
-                            Welcome Admin
-                            <small>Harsh</small>
+                    <h1 class="page-header">
+                            Welcome <?Php echo Session::get_session('user_role')?>
+                            <small> <?Php echo Session::get_session('username')?></small>
                         </h1>
                         <?php
                         if(isset($_GET['source'])){

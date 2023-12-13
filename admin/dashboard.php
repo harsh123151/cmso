@@ -3,12 +3,11 @@
 include 'includes/admin_header.php';
 ?>
 <?php use MyApp\Session; ?>
-
 <?php
 if(isset($_POST['submit_date'])){
     $start_date = $_POST['start_date'];
     $end_date = $_POST['end_date'];
-    if($start_date > $end_date){
+     if($start_date > $end_date){
         $invalid_date = true;
         $end_date = date('Y-m-d');
         $start_date = date('Y-m-d',strtotime('-30 days',strtotime($end_date)));
@@ -19,17 +18,17 @@ if(isset($_POST['submit_date'])){
 }
 ?>
 <?php
-$total_post = Post::fetch_specific_user_post($start_date,$end_date);
-$total_comment = Post::fetch_specific_user_comment($start_date,$end_date);
-$total_category =Post:: fetch_specific_user_cat($start_date,$end_date);
-$total_likes = Post::fetch_specific_user_like();
+$total_post = $database->query_count('posts','post_date',$start_date,$end_date);
+$total_comment = $database->query_count('comments','comment_date',$start_date,$end_date);
+$total_users = $database->count_rows($database->query("SELECT * FROM users"));
+// query_count('users');
+$total_category = $database->query_count('categories','cat_date',$start_date,$end_date);
 
-$total_active_post = Post::fetch_user_published_post($start_date,$end_date);      
-$total_draft_post = Post::fetch_user_draft_post($start_date,$end_date);
-$total_approve_comment = Post::fetch_user_approved_comment($start_date,$end_date);
-$total_unapprove_comment = Post::fetch_user_unapproved_comment($start_date,$end_date);
+$total_active_post = $database->query_count_condition("posts","post_status","published",'post_date',$start_date,$end_date);   
+$total_draft_post = $database->query_count_condition("posts","post_status","draft",'post_date',$start_date,$end_date);
+$total_unapprove_comment =$database-> query_count_condition("comments","comment_status","unapproved",'comment_date',$start_date,$end_date);
+$total_subscriber_users = $database->count_rows($database->query("SELECT * FROM users WHERE user_role='subscriber'"));
 ?>
-
     <div id="wrapper">
         <!-- Navigation -->
         <?php include "includes/admin_navigation.php"?>
@@ -73,12 +72,13 @@ $total_unapprove_comment = Post::fetch_user_unapproved_comment($start_date,$end_
                         
                     </div>
                 </div>
+                </div>
                 <!-- /.row -->
                        
                 <!-- /.row -->
                 
 <div class="row">
-    <div class="col-lg-4 col-md-6">
+    <div class="col-lg-3 col-md-6">
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <div class="row">
@@ -104,7 +104,7 @@ $total_unapprove_comment = Post::fetch_user_unapproved_comment($start_date,$end_
             </a>
         </div>
     </div>
-    <div class="col-lg-4 col-md-6">
+    <div class="col-lg-3 col-md-6">
         <div class="panel panel-green">
             <div class="panel-heading">
                 <div class="row">
@@ -113,8 +113,6 @@ $total_unapprove_comment = Post::fetch_user_unapproved_comment($start_date,$end_
                     </div>
                     <div class="col-xs-9 text-right">
                      <?php
-                    
-                    
                     echo "<div class='huge'>{$total_comment}</div>"
                   ?>
                       <div>Comments</div>
@@ -130,8 +128,31 @@ $total_unapprove_comment = Post::fetch_user_unapproved_comment($start_date,$end_
             </a>
         </div>
     </div>
-   
-    <div class="col-lg-4 col-md-6">
+    <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <i class="fa fa-user fa-5x"></i>
+                    </div>
+                    <div class="col-xs-9 text-right">
+                     <?php
+                    echo "<div class='huge'>{$total_users}</div>"
+                  ?>
+                        <div> Users</div>
+                    </div>
+                </div>
+            </div>
+            <a href="users.php">
+                <div class="panel-footer">
+                    <span class="pull-left">View Details</span>
+                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                    <div class="clearfix"></div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
         <div class="panel panel-red">
             <div class="panel-heading">
                 <div class="row">
@@ -159,6 +180,8 @@ $total_unapprove_comment = Post::fetch_user_unapproved_comment($start_date,$end_
                 <!-- /.row -->
 
 
+
+
                 <div class="row">
                       <script type="text/javascript">
                             google.charts.load('current', {'packages':['bar']});
@@ -172,10 +195,11 @@ $total_unapprove_comment = Post::fetch_user_unapproved_comment($start_date,$end_
                                     ['posts',$total_post],
                                     ['active post',$total_active_post],
                                     ['draft',$total_draft_post],
-                                    ['comments approve',$total_approve_comment],
-                                    ['comment unapprove',$total_unapprove_comment],
-                                    ['category',$total_category],
-                                    ['likes',$total_likes]
+                                    ['comments',$total_comment],
+                                    ['comment pending',$total_unapprove_comment],
+                                    ['users',$total_users],
+                                    ['subscriber',$total_subscriber_users],
+                                    ['category',$total_category]
                                 ";
                                 ?>
                                 
@@ -204,6 +228,7 @@ $total_unapprove_comment = Post::fetch_user_unapproved_comment($start_date,$end_
         <!-- /#page-wrapper -->
 
     </div>
+
     <!-- /#wrapper -->
 
     <!-- jQuery -->

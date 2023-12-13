@@ -1,10 +1,11 @@
 
 <?php 
 include 'includes/admin_header.php';
+use MyApp\Session;
 ?>
 <?php
-if(isset($_SESSION['username'])){
- $username = $_SESSION['username'];
+if($result = Session::get_session('username')){
+ $username = $result;
  $user_result_query = "SELECT * from users where username='$username'";
  $user_result = mysqli_query($connection,$user_result_query); 
  while($row = mysqli_fetch_assoc($user_result)){
@@ -32,7 +33,7 @@ if(isset($_POST['edit_profile_btn'])){
  if(!$edit_user){
   die("Query failed ".mysqli_error($connection));
  }
- $_SESSION['username'] = $user_username;
+ Session::set_session('username',$user_username);
  header("Location: profile.php");
  exit();
 }
@@ -50,9 +51,9 @@ if(isset($_POST['edit_profile_btn'])){
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
-                        <h1 class="page-header">
-                            Welcome Admin
-                            <small><?php echo $_SESSION['username']?></small>
+                    <h1 class="page-header">
+                            Welcome <?Php echo Session::get_session('user_role')?>
+                            <small> <?Php echo Session::get_session('username')?></small>
                         </h1>
                         <form action="profile.php" method="post" enctype="multipart/form-data">    
       <div class="form-group">

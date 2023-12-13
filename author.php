@@ -1,6 +1,4 @@
 <?php include "includes/header.php";?>
-<?php include 'includes/db.php';?>
-<?php include "Functions/fetch_post.php";?>
     <!-- Navigation -->
 <?php include "includes/navigation.php"?>
 
@@ -14,12 +12,8 @@
                 <?php
 
                 if(isset($_GET['author'])){
-                    $author = escape($_GET['author']);
-                    $query = "SELECT * FROM posts WHERE post_user='$author'";
-                    $result = mysqli_query($connection , $query);
-                    if(!$result){
-                     die("Query Failed " . mysqli_error($connection));
-                    }
+                    $author = $database->escape($_GET['author']);
+                    $result=$database->query("SELECT * FROM posts WHERE post_user='$author'");
                     
                     while($row = mysqli_fetch_assoc($result)){
                         $post_title = $row['post_title'];

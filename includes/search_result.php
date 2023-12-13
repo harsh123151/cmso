@@ -1,4 +1,5 @@
 <?php
+use MyApp\Session;
                 $post_per_page = 5;
                 if(isset($_GET['page'])){
                     $page = $_GET['page'];
@@ -7,20 +8,20 @@
                 }
                 if(isset($_POST['submit'])){
                     $search = $_POST['search'];
-                    if(isset($_SESSION['user_role']) && $_SESSION['user_role']==='admin'){
-                        $count_query = "SELECT * FROM posts WHERE post_tags LIKE '%$search%'";
-                        $count_query_result = mysqli_query($connection , $count_query);
-                        $total_count = mysqli_num_rows($count_query_result);
+                    if(Session::get_session('user_role') && Session::get_session('user_role')==='admin'){
+                        $count_query = "SELECT * FROM posts WHERE post_tags LIKE '%$search%' OR post_user LIKE '%$search%' OR post_title LIKE '%$search%'";
+                        $count_query_result = $database->query($count_query);
+                        $total_count = $database->count_rows($count_query_result);
                         $count  =ceil($total_count / $post_per_page);
                         $post_starting = ($page*$post_per_page) - $post_per_page;
-                        $result = fetch_post_admin($_POST['search'],$post_starting,$post_per_page);
+                        $result = Post::fetch_post_admin($_POST['search'],$post_starting,$post_per_page);
                     }else{
-                        $count_query = "SELECT * FROM posts WHERE post_tags LIKE '%$search%' AND post_status='published'";
-                        $count_query_result = mysqli_query($connection , $count_query);
-                        $total_count = mysqli_num_rows($count_query_result);
+                        $count_query = "SELECT * FROM posts WHERE (post_tags LIKE '%$search%' OR post_user LIKE '%$search%' OR post_title LIKE '%$search%') AND post_status='published'";
+                        $count_query_result = $database->query($count_query);
+                        $total_count =  $database->count_rows($count_query_result);
                         $count  =ceil($total_count / $post_per_page);
                         $post_starting = ($page*$post_per_page) - $post_per_page;
-                        $result = fetch_post($_POST['search'],$post_starting,$post_per_page);
+                        $result = Post::fetch_post($_POST['search'],$post_starting,$post_per_page);
                     }
 
                     if($total_count < 1){
@@ -51,7 +52,7 @@
                 <p><span class="glyphicon glyphicon-time"></span> Posted on <?php echo $post_date?></p>
                 <hr>
                 <a href="post/<?php echo $post_id?>">
-                        <img class="img-responsive" src="/cms/images/<?php echo $post_image?>" alt="">
+                        <img class="img-responsive" src="/cmso/images/<?php echo $post_image?>" alt="">
                 </a>
                 <hr>
                 <p><?php echo $post_content?></p>
@@ -63,20 +64,20 @@
                 }
                     
                 }else{
-                    if(isset($_SESSION['user_role']) && $_SESSION['user_role']==='admin'){
+                    if(Session::get_session('user_role') && Session::get_session('user_role')==='admin'){
                         $count_query = "SELECT * FROM posts";
-                        $count_query_result = mysqli_query($connection , $count_query);
-                        $total_count = mysqli_num_rows($count_query_result);
+                        $count_query_result =$database->query($count_query);
+                        $total_count =  $database->count_rows($count_query_result);
                         $count  =ceil($total_count / $post_per_page);
                         $post_starting = ($page*$post_per_page) - $post_per_page;
-                        $result = fetch_post_Admin("",$post_starting,$post_per_page);
+                        $result = Post::fetch_post_Admin("",$post_starting,$post_per_page);
                     }else{
                         $count_query = "SELECT * FROM posts WHERE post_status='published'";
-                        $count_query_result = mysqli_query($connection , $count_query);
-                        $total_count = mysqli_num_rows($count_query_result);
+                        $count_query_result = $database->query($count_query);
+                        $total_count =  $database->count_rows($count_query_result);
                         $count  =ceil($total_count / $post_per_page);
                         $post_starting = ($page*$post_per_page) - $post_per_page;
-                        $result = fetch_post("",$post_starting,$post_per_page);
+                        $result = Post::fetch_post("",$post_starting,$post_per_page);
                     }
 
                     if($total_count<1){
@@ -109,7 +110,7 @@
                 <p><span class="glyphicon glyphicon-time"></span> Posted on <?php echo $post_date?></p>
                 <hr>
                 <a href="post/<?php echo $post_id?>">
-                        <img class="img-responsive" src="/cms/images/<?php echo $post_image?>" alt="">
+                        <img class="img-responsive" src="/cmso/images/<?php echo $post_image?>" alt="">
                 </a>
                 <hr>
                 <p><?php echo $post_content?></p>

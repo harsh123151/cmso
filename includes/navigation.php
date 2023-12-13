@@ -1,4 +1,5 @@
 <?php
+use MyApp\Session;
 $pagename = basename($_SERVER['PHP_SELF']);
 ?>
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -17,35 +18,34 @@ $pagename = basename($_SERVER['PHP_SELF']);
                     $home_class = 'active';
                 }
                 ?>
-                <a class="navbar-brand nav-link <?php echo $home_class ?>" href="/cms/index">Home</a>
+                <a class="navbar-brand nav-link <?php echo $home_class ?>" href="/cmso/index">Home</a>
             </div>
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <?php
-                    include "Functions/fetch_category.php";
-                    $result = fetch_category();
-                    while($row=mysqli_fetch_assoc($result)){
+                <?php
+                    $result_cat = Category::getallcategory();
+                    while($row=mysqli_fetch_assoc($result_cat)){
                         $cat_id = $row['cat_id'];
                         $cat_title = $row['cat_title'];
                         $category_class='';
                         if($pagename==='category.php' && isset($_GET['cat_id']) && $_GET['cat_id']===$cat_id){
                             $category_class='active';
                         }
-                        echo "<li class=$category_class><a href='/cms/category/$cat_id'>$cat_title</a></li>";
+                        echo "<li class=$category_class><a href='/cmso/category/$cat_id'>$cat_title</a></li>";
                     }
                     ?>
 
-                    <?php if(isLoggedIn()):?>
+                    <?php if(Validation::isLoggedIn()):?>
                         <li>
-                            <a href="/cms/admin">Admin</a>
+                            <a href="/cmso/admin">Admin</a>
                         </li>
                         <li>
-                            <a href="/cms/admin/includes/logout.php">logout</a>
+                            <a href="/cmso/admin/includes/logout.php">logout</a>
                         </li>
                     <?php else:?>
                          <li>
-                            <a href="/cms/login">Login</a>
+                            <a href="/cmso/login">Login</a>
                         </li>
                     <?php endif;?>
                     
@@ -59,14 +59,14 @@ $pagename = basename($_SERVER['PHP_SELF']);
                             $contact_class='active';
                         }
                     ?>
-                    <li class=<?php echo $resgistration_class ?>><a href="/cms/registration">Register</a></li>
-                    <li class=<?php echo $contact_class ?>><a href="/cms/contact">Contact</a></li>
+                    <li class=<?php echo $resgistration_class ?>><a href="/cmso/registration">Register</a></li>
+                    <li class=<?php echo $contact_class ?>><a href="/cmso/contact">Contact</a></li>
                     <?php
-                        if(isset($_SESSION['user_role']) && $_SESSION['user_role']==='admin'){
+                        if(Session::get_session('user_role') && Session::get_session('user_role')==='admin'){
                             if(isset($_GET['p_id'])){
                                 $the_post_id = $_GET['p_id'];
                                 echo "<li>
-                        <a href='admin/posts.php?source=edit_post&p_id=$the_post_id'>Edit post</a>
+                        <a href='/cmso/admin/posts.php?source=edit_post&p_id=$the_post_id'>Edit post</a>
                     </li>";
                             }
                         }

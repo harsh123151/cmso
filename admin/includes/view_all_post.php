@@ -25,49 +25,58 @@
 </div>
 <?php
 if(isset($_POST['submit_bulk'])){
- if(isset($_POST['selectBoxes'])){
- $operation = $_POST['selectBoxes']; 
- if(isset($_POST['checkBoxArray'])){ 
- foreach($_POST['checkBoxArray'] as $thePostId){ 
- switch($operation){
-  case "publish":
-      $publish_query = "UPDATE posts SET post_status='published' WHERE post_id=$thePostId";
-      $result_publish_query = mysqli_query($connection,$publish_query);
-      if(!$result_publish_query){
-       die("Query failed " . mysqli_error($connection));
-      }
-   break;
-  case  "draft":
-      $draft_query = "UPDATE posts SET post_status='draft' WHERE post_id=$thePostId";
-      $result_draft_query = mysqli_query($connection,$draft_query);
-   break;
-  case "delete":
-      $delete_query = "DELETE FROM posts  WHERE post_id=$thePostId";
-      $result_delete_query = mysqli_query($connection,$delete_query);
-   break;
-  case "clone":
-      $result = fetch_specific_post($thePostId);
-      $row = mysqli_fetch_assoc($result);
-      $post_id = $row['post_id'];
-      $post_user = $row['post_user'];
-      $post_category_id = $row['post_category_id'];
-      $post_title = $row['post_title'];
-      $post_content = $row['post_content'];
-      $post_date = $row['post_date'];
-      $post_tags = $row['post_tags'];
-      $post_comment_counts = $row['post_comment_counts'];
-      $post_status = $row['post_status'];
-      $post_image = $row['post_image'];
-      $clone_query = "INSERT INTO posts (post_title, post_user, post_date, post_image, post_content, post_tags, post_status, post_category_id) ";
-      $clone_query.= "VALUES('$post_title', '$post_user', NOW(), '$post_image', '$post_content', '$post_tags', '$post_status', $post_category_id)";
-      $clone_result = mysqli_query($connection , $clone_query);
-      if(!$clone_query){
-        die("Query failed " . mysqli_error($connection));
-      }
-    break;
- }
-}
-}
+ if(isset($_POST['selectBoxes']) && !empty($_POST['selectBoxes']) ){
+    $operation = $_POST['selectBoxes']; 
+    if(isset($_POST['checkBoxArray']) && !empty($_POST['checkBoxArray']) ){ 
+    foreach($_POST['checkBoxArray'] as $thePostId){ 
+    switch($operation){
+      case "publish":
+          $publish_query = "UPDATE posts SET post_status='published' WHERE post_id=$thePostId";
+          $result_publish_query = mysqli_query($connection,$publish_query);
+          if(!$result_publish_query){
+          die("Query failed " . mysqli_error($connection));
+          }
+      break;
+      case  "draft":
+          $draft_query = "UPDATE posts SET post_status='draft' WHERE post_id=$thePostId";
+          $result_draft_query = mysqli_query($connection,$draft_query);
+      break;
+      case "delete":
+          $delete_query = "DELETE FROM posts  WHERE post_id=$thePostId";
+          $result_delete_query = mysqli_query($connection,$delete_query);
+      break;
+      case "clone":
+          $result = Post::fetch_specific_post($thePostId);
+          $row = mysqli_fetch_assoc($result);
+          $post_id = $row['post_id'];
+          $post_user = $row['post_user'];
+          $post_category_id = $row['post_category_id'];
+          $post_title = $row['post_title'];
+          $post_content = $row['post_content'];
+          $post_date = $row['post_date'];
+          $post_tags = $row['post_tags'];
+          $post_comment_counts = $row['post_comment_counts'];
+          $post_status = $row['post_status'];
+          $post_image = $row['post_image'];
+          $clone_query = "INSERT INTO posts (post_title, post_user, post_date, post_image, post_content, post_tags, post_status, post_category_id) ";
+          $clone_query.= "VALUES('$post_title', '$post_user', NOW(), '$post_image', '$post_content', '$post_tags', '$post_status', $post_category_id)";
+          $clone_result = mysqli_query($connection , $clone_query);
+          if(!$clone_query){
+            die("Query failed " . mysqli_error($connection));
+          }
+        break;
+    }
+    }
+    }else{
+      echo "<div class='alert alert-danger' role='alert'>
+  Please Select any one box
+</div>";
+    }
+}else{
+  //selectboxes
+  echo "<div class='alert alert-danger' role='alert'>
+  Please Select any operation
+</div>";
 }
 }
 ?>
@@ -111,7 +120,8 @@ if(isset($_POST['submit_bulk'])){
  </thead>
  <tbody>
   <?php
-   $result_post = fetch_all_post();
+  //change using join cattile
+   $result_post = Post::fetch_all_post_with_cat();
    while($row = mysqli_fetch_assoc($result_post)){
     $post_id = $row['post_id'];
     $post_user = $row['post_user'];
@@ -124,10 +134,10 @@ if(isset($_POST['submit_bulk'])){
     $post_status = $row['post_status'];
     $post_image = $row['post_image'];
     $post_view_count = $row['post_view_count'];
-    $result_cat = fetch_specific_cat($post_category_id);
-    while($title = mysqli_fetch_assoc($result_cat)){
-     $cat_title = $title['cat_title'];
-    }
+    // $result_cat = fetch_specific_cat($post_category_id);
+    // $title = mysqli_fetch_assoc($result_cat);
+    $cat_title = $row['cat_title'];
+    //default image
     echo "<tr>
    <td><input type='checkbox' class='checkBoxes' name='checkBoxArray[]' value={$post_id}></td>
    <td>{$post_id}</td>
@@ -141,7 +151,7 @@ if(isset($_POST['submit_bulk'])){
    <td><a href='post_comment.php?post_id={$post_id}'>{$post_comment_counts}</a></td>
    <td>{$post_status}</td>
    <td>{$post_date}</td>
-   <td><a href='../post.php?p_id={$post_id}'>View</a></td>
+   <td><a href='../post.php?p_id={$post_id}' target='_blank'>View</a></td>
    <td><a href='posts.php?source=edit_post&p_id={$post_id}'>Edit</a></td>";
    //  <td><a href='posts.php?delete={$post_id}'>Delete</a></td>
    echo "
@@ -158,15 +168,15 @@ if(isset($_POST['submit_bulk'])){
 <?php
 if(isset($_GET['delete'])){
  $post_id = $_GET['delete'];
- delete_post($post_id);
- delete_comment_of_post($post_id);
+ Post::delete_post($post_id);
+ Comment::delete_all_comment_post($post_id);
  header("Location: posts.php");
  exit();
 }
 
 if(isset($_GET['reset'])){
  $post_id = $_GET['reset'];
- reset_post($post_id);
+ Post::reset_post($post_id);
  header("Location: posts.php");
  exit();
 }

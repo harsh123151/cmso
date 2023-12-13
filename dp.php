@@ -1,16 +1,31 @@
-<?php include "includes/header.php";
-use MyApp\Session;
-use MyApp\Helper\Helper;
-
-?>
+<?php include "includes/header.php";?>
+<?php include 'includes/db.php';?>
+<?php include "Functions/fetch_post.php";?>
 <!-- Navigation -->
 <?php include "includes/navigation.php"?>
+
 <?php
-if(isset($_GET['p_id']) && !Validation::isAdmin() && Post::is_post_draft($_GET['p_id']) ){
-    Helper::redirect('/cms/index');
+if(isset($_POST["liked"])){
+    if(isset($_POST["user_id"]) && isset($_POST["post_id"]) ){
+        $user_id = $_POST['user_id'];
+        $post_id = $_POST['post_id'];
+        // using onlyupdate query
+        mysqli_query($connection,"UPDATE posts SET likes=likes+1 WHERE post_id=$post_id");
+        mysqli_query($connection,"INSERT INTO likes (post_id,user_id,like_date) VALUES ($post_id,$user_id,NOW())");
+    }
 }
 ?>
-
+<?php
+if(isset($_POST["unliked"])){
+    if(isset($_POST["user_id"]) && isset($_POST["post_id"]) ){
+        $user_id = $_POST['user_id'];
+        $post_id = $_POST['post_id'];
+        
+        mysqli_query($connection,"UPDATE posts SET likes=likes-1 WHERE post_id=$post_id");
+        mysqli_query($connection,"DELETE FROM likes WHERE post_id=$post_id AND user_id=$user_id");
+    }
+}
+?>
 
     <!-- Page Content -->
     <div class="container">
@@ -22,9 +37,10 @@ if(isset($_GET['p_id']) && !Validation::isAdmin() && Post::is_post_draft($_GET['
                 <?php
 
                 if(isset($_GET['p_id'])){
-                    $post_id = $database->escape($_GET['p_id']);
-                    $view_query_result = $database->query("UPDATE posts SET post_view_count=post_view_count+1 WHERE post_id=$post_id");
-                    $result = Post::fetch_specific_post($post_id);
+                    $post_id = escape($_GET['p_id']);
+                    $view_query = "UPDATE posts SET post_view_count=post_view_count+1 WHERE post_id=$post_id";
+                    $view_query_result = mysqli_query($connection, $view_query);
+                    $result = fetch_specific_post($post_id);
                 // else{
                 //     $result = fetch_post();
                 // }
@@ -51,17 +67,17 @@ if(isset($_GET['p_id']) && !Validation::isAdmin() && Post::is_post_draft($_GET['
                 </p>
                 <p><span class="glyphicon glyphicon-time"></span> Posted on <?php echo $post_date?></p>
                 <hr>
-                <img class="img-responsive" src="/cmso/images/<?php echo $post_image?>" alt="">
+                <img class="img-responsive" src="/cms/images/<?php echo $post_image?>" alt="">
                 <hr>
                 <p><?php echo $post_content?></p>
 
                 <hr>
                 <?php
-                    }
+                    }}
                 ?>
-                <?php if(Validation::isLoggedIn()):?>
+                <?php if(isLoggedIn()):?>
                     <?php
-                 $liked = Like::userLikedThis($post_id,Validation::getUserId());
+                 $liked = userLikedThis($post_id);
                 ?>
                 <div class="row">
                         <p class="pull-right"><a
@@ -76,7 +92,7 @@ if(isset($_GET['p_id']) && !Validation::isAdmin() && Post::is_post_draft($_GET['
                     
                 <?php endif;?>
                 <div class="row">
-                    <p class="pull-right">Like: <span class="likes"><?php echo Like::getPostLikes($post_id) ?></span> </p>
+                    <p class="pull-right likes">Like: <?php echo getPostLikes($post_id)?></p>
                 </div>
 
                  <div class="clearfix"></div>
@@ -88,14 +104,21 @@ if(isset($_GET['p_id']) && !Validation::isAdmin() && Post::is_post_draft($_GET['
                 <div class="well">
                     <?php
     if(isset($_POST['submit_comment'])){
-        $comment_author = $database->escape($_POST['comment_author']); 
-        $comment_email = $database->escape($_POST['comment_email']);
-        $comment_content = $database->escape($_POST['comment_content']);
+        $comment_author = escape($_POST['comment_author']); 
+        $comment_email = escape($_POST['comment_email']);
+        $comment_content = escape($_POST['comment_content']);
 
-        $query = "INSERT INTO comments(comment_post_id,comment_author,comment_email,comment_content,comment_status,comment_date) VALUES($post_id,'$comment_author','$comment_email','$comment_content','unapproved',now())";
-        $result = $database->query($query);
+        $query = "INSERT INTO comments(comment_post_id,comment_author,comment_email,comment_content,comment_status,comment_date) ";
+        $query.="VALUES($post_id,'$comment_author','$comment_email','$comment_content','unapproved',now())";
+        $result = mysqli_query($connection,$query);
+        if(!$result){
+            die("Query Failed ".mysqli_error($connection));
+        }
         $query_increment_comment = "UPDATE posts SET post_comment_counts = post_comment_counts+1 where post_id=$post_id";
-        $result_comment_increment = $database->query($query_increment_comment);
+        $result_comment_increment = mysqli_query($connection,$query_increment_comment);
+        if(!$result_comment_increment){
+            die("Query Failed ".mysqli_error($connection));
+        }
     }
 ?>
                     <h4>Leave a Comment:</h4>
@@ -124,7 +147,7 @@ if(isset($_GET['p_id']) && !Validation::isAdmin() && Post::is_post_draft($_GET['
 
                 <?php
                 $query = "SELECT * FROM comments WHERE comment_status = 'approved' ORDER BY comment_id DESC";
-                $result = $database->query($query);
+                $result = mysqli_query($connection,$query);
                 while($row = mysqli_fetch_assoc($result)){
                     $comment_author = $row['comment_author'];
                     $comment_date = $row['comment_date'];
@@ -144,7 +167,7 @@ if(isset($_GET['p_id']) && !Validation::isAdmin() && Post::is_post_draft($_GET['
                 </div>
 
                <?php
-                }}
+                }
                 ?> 
 
 
@@ -161,48 +184,43 @@ if(isset($_GET['p_id']) && !Validation::isAdmin() && Post::is_post_draft($_GET['
         <!-- Footer -->
         <?php include "includes/footer.php" ?>
         <script>
-           $(document).ready(function(){
-    var user_id = <?php echo Session::get_session('user_id'); ?>;
-    var post_id = <?php echo $post_id; ?>;
+            $(document).ready(function(){
+                var user_id = <?php echo $_SESSION['user_id']; ?>;
+                var post_id = <?php echo $post_id; ?>;
+            $('.like').click(function(e){
+                e.preventDefault();
+                $.ajax({
+                    url:"http://localhost/cms/post/<?php echo $post_id; ?>",
+                    type:'post',
+                    data:{
+                        'liked':1,
+                        'user_id':user_id,
+                        'post_id':post_id
+                    },
+                    success:function(response){
+                        const data = JSON.stringify(response);
+                        console.log(data);
+                    }
+                })
+            })
 
-    // Use event delegation for dynamic elements
-    $(document).on('click', '.like', function(e) {
-        e.preventDefault();
-        $.ajax({
-            url: "http://localhost/cms/includes/handle_like.php",
-            type: 'post',
-            data: {
-                'liked': 1,
-                'user_id': user_id,
-                'post_id': post_id
-            },
-            success: function(response) {
-                const data = JSON.parse(response);
-                console.log(data.likes);
-                $('.like').removeClass('like').addClass('unlike').html("<span class='glyphicon glyphicon-thumbs-down'></span> Unlike");
-                $('.likes').text(data.likes);
-            }
-        });
-    });
-
-    $(document).on('click', '.unlike', function(e) {
-        e.preventDefault();
-        $.ajax({
-            url: "http://localhost/cms/includes/handle_like.php",
-            type: 'post',
-            data: {
-                'unliked': 1,
-                'user_id': user_id,
-                'post_id': post_id
-            },
-            success: function(response) {
-                const data = JSON.parse(response);
-                console.log(data.likes);
-                $('.unlike').removeClass('unlike').addClass('like').html("<span class='glyphicon glyphicon-thumbs-up'></span> Like");
-                $('.likes').text(data.likes);
-            }
-        });
-    });
-});
+            $('.unlike').click(function(e){
+                e.preventDefault();
+                $.ajax({
+                    url:"http://localhost/cms/post/<?php echo $post_id; ?>",
+                    type:'post',
+                    data:{
+                        'unliked':1,
+                        'user_id':user_id,
+                        'post_id':post_id
+                    },
+                    success:function(response){
+                        const data = JSON.stringify(response);
+                        console.log(data);
+                    }
+                })
+            })
+            
+            })
             
         </script>

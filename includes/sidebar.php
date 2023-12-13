@@ -1,15 +1,15 @@
-
+<?php use MyApp\Session;?>
 <div class="col-md-4">
 
                 <!-- Blog Search Well -->
                 <?php include "includes/search.php"?>
                 <div class="well">
-                    <?php if(isset($_SESSION['user_role'])):?>
-                    <h4>Logged in as <?php echo $_SESSION['username']?></h4>
-                    <a href="/cms/admin/includes/logout.php"><button class="btn btn-primary">Logout</button></a>
+                    <?php if(Session::get_session('user_role')):?>
+                    <h4>Logged in as <?php echo Session::get_session('username')?></h4>
+                    <a href="/cmso/admin/includes/logout.php"><button class="btn btn-primary">Logout</button></a>
                     
                     <?Php else:?>
-                        <form action="/cms/login.php" method="post">
+                        <form action="/cmso/login.php" method="post">
                     <div class="form-group">
                         <input type="text" name="username" class="form-control" placeholder="Enter username">
                     </div>
@@ -20,7 +20,7 @@
                         </span>
                     </div>
                         <div class="form-group">
-                            <a href="/cms/forgot?forgot=<?php echo uniqid()?>">Forgot password?</a>
+                            <a href="/cmso/forgot?forgot=<?php echo uniqid()?>">Forgot password?</a>
                         </div>
                     </form>
                     <?php endif;?>
@@ -32,14 +32,14 @@
                     <div class="row">
                         <div class="col-lg-12">
                             <ul class="list-unstyled">
-                                <?php
-                                $result = fetch_category();
-                                while($row=mysqli_fetch_assoc($result)){
+                            <?php
+                                $result_cat = Category::getallcategory();
+                                while($row=mysqli_fetch_assoc($result_cat)){
                                     $cat_id = $row['cat_id'];
                                     $cat_title = $row['cat_title'];
-                                    echo "<li><a href='/cms/category/$cat_id'>$cat_title</a></li>";
+                                    echo "<li><a href='/cmso/category/$cat_id'>$cat_title</a></li>";
                                 }
-                                ?>
+                            ?>
                             </ul>
                         </div>
                     </div>

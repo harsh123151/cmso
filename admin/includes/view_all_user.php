@@ -1,27 +1,28 @@
+<?php use MyApp\Session; ?>
  <?php
  if(isset($_GET['delete'])){
- $user_id = escape($_GET['delete']);
- delete_user($user_id);
+ $user_id = $database->escape($_GET['delete']);
+ User::delete_user($user_id);
  header("Location: users.php");
  exit();
 }
 
 
 if(isset($_GET['admin'])){
- $user_id = escape($_GET['admin']);
- set_user_admin($user_id);
- if($user_id===$_SESSION['user_id']){
-  $_SESSION['user_role'] = 'admin';
+ $user_id =  $database->escape($_GET['admin']);
+ User::set_user_admin($user_id);
+ if($user_id===Session::get_session('user_id')){
+    Session::set_session('user_role','admin');
  }
  header("Location: users.php");
  exit();
 }
 
 if(isset($_GET['subscriber'])){
- $user_id = escape($_GET['subscriber']);
- set_user_subscriber($user_id);
- if($user_id===$_SESSION['user_id']){
-  $_SESSION['user_role'] = 'subscriber';
+ $user_id =  $database->escape($_GET['subscriber']);
+ User::set_user_subscriber($user_id);
+ if($user_id===Session::get_session('user_id')){
+  Session::set_session('user_role','subscriber');
  }
  header("Location: users.php");
  exit();
@@ -47,7 +48,7 @@ if(isset($_GET['subscriber'])){
  </thead>
  <tbody>
   <?php
-   $result_user = fetch_all_user();
+   $result_user = User::getalluser();
    while($row = mysqli_fetch_assoc($result_user)){
     $user_id = $row['user_id'];
     $username = $row['username'];

@@ -1,6 +1,4 @@
 <?php include "includes/header.php";?>
-<?php include 'includes/db.php';?>
-<?php include "Functions/fetch_post.php";?>
 
     <!-- Navigation -->
 <?php include "includes/navigation.php"?>
@@ -9,7 +7,6 @@
     <div class="container">
 
         <div class="row">
-
             <!-- Blog Entries Column -->
             <div class="col-md-8">
                 <?php include "includes/search_result.php";?>

@@ -1,9 +1,14 @@
 <?php ob_start(); // learn
-session_start();
-include "../includes/db.php";
-include "includes/Functions.php";
-include "includes/comment_function.php";
-include "includes/user_function.php";
+include "classes/Session.php";
+use MyApp\Session; 
+Session::start_session();
+include "../includes/Database.php";
+include "classes/Category.php";
+include "classes/Helper.php";
+include "classes/Post.php";
+include "classes/User.php";
+include "classes/Comment.php";
+include "classes/Validation.php";
 ?>
 
 <?php

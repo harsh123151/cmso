@@ -1,9 +1,10 @@
 <?php include 'includes/admin_header.php';
 ?>
+<?php use MyApp\Session; ?>
 
 <?php 
  if(isset($_GET['delete'])){
-    delete_cat($_GET['delete']);
+    Category::delete_cat($_GET['delete']);
     header("Location: categories.php");
  }
  
@@ -22,9 +23,9 @@
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
-                        <h1 class="page-header">
-                            Welcome Admin
-                            <small>Harsh</small>
+                    <h1 class="page-header">
+                            Welcome <?Php echo Session::get_session('user_role')?>
+                            <small> <?Php echo Session::get_session('username')?></small>
                         </h1>
                         
                     </div>
@@ -36,7 +37,7 @@
                         if($cat_title=='' || empty($cat_title)){
                             echo "<small class='text-danger'>It cannot be empty</small>";
                         }else{
-                            add_cat($cat_title);
+                            Category::add_cat($cat_title);
                     }
                     }
                     ?>
@@ -66,7 +67,7 @@
                             <tbody>
                             <?php
                                 
-                                $result = fetch_category();
+                                $result = Category::getallcategory();
                                 while($row = mysqli_fetch_assoc($result)){
                                     $cat_id = $row['cat_id'];
                                     $cat_title = $row['cat_title'];
@@ -95,7 +96,7 @@
                     if(isset($_POST['edit_cat'])){
                     $edit_cat_title = $_POST['cat_title'];
                     $edit_id = $_POST['edit_id'];
-                    edit_cat($edit_cat_title,$edit_id);
+                    Category::edit_cat($edit_cat_title,$edit_id);
                     header("Location: categories.php");
                     exit();
                     }

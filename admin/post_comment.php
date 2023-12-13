@@ -1,6 +1,7 @@
 <?php 
 include 'includes/admin_header.php';
 ?>
+<?php use MyApp\Session; ?>
   <div id="wrapper">
 
         <!-- Navigation -->
@@ -13,16 +14,16 @@ include 'includes/admin_header.php';
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
-                        <h1 class="page-header">
-                            Welcome Admin
-                            <small>Harsh</small>
+                    <h1 class="page-header">
+                            Welcome <?Php echo Session::get_session('user_role')?>
+                            <small> <?Php echo Session::get_session('username')?></small>
                         </h1>
 <?php
 if(isset($_GET['delete'])){
  $comment_id = $_GET['delete'];
  $post_id = $_GET['post_id'];
- decrement_comment($comment_id);
- delete_comment($comment_id);
+ Comment::decrement_comment($comment_id);
+ Comment::delete_comment($comment_id);
  header("Location: post_comment.php?post_id={$post_id}");
  exit();
 }
@@ -31,7 +32,7 @@ if(isset($_GET['delete'])){
 if(isset($_GET['approve'])){
  $comment_id = $_GET['approve'];
  $post_id = $_GET['post_id'];
- approve_comment($comment_id);
+ Comment::approve_comment($comment_id);
  header("Location: post_comment.php?post_id={$post_id}");
  exit();
 }
@@ -39,7 +40,7 @@ if(isset($_GET['approve'])){
 if(isset($_GET['unapprove'])){
  $comment_id = $_GET['unapprove'];
  $post_id = $_GET['post_id'];
- unapprove_comment($comment_id);
+ Comment::unapprove_comment($comment_id);
  header("Location: post_comment.php?post_id={$post_id}");
  exit();
 }
@@ -63,7 +64,7 @@ if(isset($_GET['unapprove'])){
   <?php
    if(isset($_GET['post_id'])){
    $the_post_id = $_GET['post_id'];
-   $result_comment = fetch_specific_comment($the_post_id);
+   $result_comment = Comment::fetch_specific_comment($the_post_id);
    while($row = mysqli_fetch_assoc($result_comment)){
     $comment_id = $row['comment_id'];
     $comment_post_id = $row['comment_post_id'];
@@ -72,7 +73,7 @@ if(isset($_GET['unapprove'])){
     $comment_content = $row['comment_content'];
     $comment_date = $row['comment_date'];
     $comment_status = $row['comment_status'];
-    $result_specific_post = fetch_specific_post($comment_post_id);
+    $result_specific_post = Post::fetch_specific_post($comment_post_id);
     while($row_post = mysqli_fetch_assoc($result_specific_post)){
      $post_title=$row_post['post_title'];
     }

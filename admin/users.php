@@ -1,9 +1,11 @@
-<?php include 'includes/admin_header.php';
-
+<?php include 'includes/admin_header.php';?>
+<?php use MyApp\Session;
+use MyApp\Helper\Helper;
 ?>
 <?php
-if(isset($_SESSION['user_role']) && $_SESSION['user_role']!=='admin'){
-    redirect('index.php');
+
+if(Session::get_session('user_role') && Session::get_session('user_role')!=='admin'){
+    Helper::redirect('index.php');
 }
 ?>
 
@@ -19,9 +21,9 @@ if(isset($_SESSION['user_role']) && $_SESSION['user_role']!=='admin'){
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
-                        <h1 class="page-header">
-                            Welcome Admin
-                            <small>Harsh</small>
+                    <h1 class="page-header">
+                            Welcome <?Php echo Session::get_session('user_role')?>
+                            <small> <?Php echo Session::get_session('username')?></small>
                         </h1>
                         <?php
                         if(isset($_GET['source'])){
@@ -36,11 +38,11 @@ if(isset($_SESSION['user_role']) && $_SESSION['user_role']!=='admin'){
                            break;
 
                           case 'edit_user':
-                            include "includes/edit_user.php";
+                            include "includes/both_user.php";
                             break;
                             
                            case 'add_user':
-                            include "includes/add_user.php";
+                            include "includes/both_user.php";
                             break;
 
                            default:

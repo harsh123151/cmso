@@ -1,10 +1,10 @@
 <?php
 if(isset($_POST['create_user'])){
-    $username = escape($_POST['username']);
-    $user_firstname = escape($_POST['user_firstname']);
-    $user_lastname = escape($_POST['user_lastname']);
-    $user_password = escape($_POST['user_password']);
-    $user_email = escape($_POST['user_email']);
+    $username = $database->escape($_POST['username']);
+    $user_firstname = $database->escape($_POST['user_firstname']);
+    $user_lastname = $database->escape($_POST['user_lastname']);
+    $user_password = $database->escape($_POST['user_password']);
+    $user_email = $database->escape($_POST['user_email']);
     // $user_image = $_POST['user_image'];
 //  move_uploaded_file($post_image_tmp, "../images/$post_image" );
     $user_password = password_hash($user_password , PASSWORD_BCRYPT , array('cost'=>10));

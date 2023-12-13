@@ -1,22 +1,23 @@
-<?php  include "includes/db.php"; ?>
 <?php  include "includes/header.php"; ?>
-<?php include 'Functions/login_user.php';?>
+<?php use MyApp\Authentication;
+use MyApp\Helper\Helper;
+?>
 <?php
 
-		checkIfUserIsLoggedInAndRedirect('/cms/admin');
+Validation::checkIfUserIsLoggedInAndRedirect('/cmso/admin');
 
 
-		if(ifItIsMethod('post')){
+		if(Validation::ifItIsMethod('post')){
 
 			if(isset($_POST['username']) && isset($_POST['password'])){
 
-				login_user($_POST['username'], $_POST['password']);
+				Authentication::login_user($_POST['username'], $_POST['password']);
 
 
 			}else {
 
 
-				redirect('/cms/login.php');
+				Helper::redirect('/cmso/login.php');
 			}
 
 		}

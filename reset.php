@@ -1,14 +1,13 @@
-<?php  include "includes/db.php"; ?>
 <?php  include "includes/header.php"; ?>
-
+<?php use MyApp\Helper\Helper;?>
 <?php
-if(!ifItIsMethod('get') || !isset($_GET['email']) || !isset($_GET['token'])){
- redirect('index');
+if(!isset($_GET['email']) || !isset($_GET['token'])){
+ Helper::redirect('index');
 }else{
  $token = $_GET['token'];
  $email = $_GET['email'];
- if(!user_email_exist($email)){
-  redirect('index');
+ if(!User::user_email_exist($email)){
+  Helper::redirect('index');
  }
  $stmt = mysqli_prepare($connection,"SELECT username,user_email,token FROM users WHERE user_email=?");
  mysqli_stmt_bind_param($stmt,'s',$email);
@@ -16,15 +15,29 @@ if(!ifItIsMethod('get') || !isset($_GET['email']) || !isset($_GET['token'])){
  mysqli_stmt_execute($stmt);
  mysqli_stmt_fetch($stmt);
  mysqli_stmt_close($stmt);
- echo $token ."<br>";
- echo $user_token . " it user token";
  if($token!==$user_token){
-  redirect('index.php');
- }
- if(isset($_POST['rest_form']) && isset($_POST['password']) && isset($_POST['confirm_password'])){
-  echo "all good";
+  Helper::redirect('index.php');
  }
 }
+?>
+<?php
+if(isset($_POST['new_password']) && isset($_POST['password']) && isset($_POST['confirm_password'])){
+    if($_POST['password']!==$_POST['confirm_password']){
+      echo "Password did not match";
+    }else{
+    $hash_password = password_hash($_POST['password'],PASSWORD_BCRYPT,array('cost'=>12));
+      $stmt =mysqli_prepare($connection , "UPDATE users set token='',user_password=? WHERE user_email=?");
+      mysqli_stmt_bind_param($stmt,'ss',$hash_password,$user_email);
+      mysqli_stmt_execute($stmt);
+      if (mysqli_stmt_affected_rows($stmt) >= 1){
+        Helper::redirect('/cms/login');
+      }else{
+        echo "change not happen";
+      }
+      mysqli_stmt_close($stmt);
+      
+    }
+   }
 ?>
 
 <!-- Page Content -->
@@ -43,7 +56,7 @@ if(!ifItIsMethod('get') || !isset($_GET['email']) || !isset($_GET['token'])){
                                 <p>You can enter your password here.</p>
                                 <div class="panel-body">
 
-                                    <form id="reset_form" action="" name="reset_form"role="form" autocomplete="off" class="form" method="post">
+                                    <form id="reset_form" action="reset.php?email=<?php echo $user_email?>&token=<?php echo $user_token?>" name="reset_form" role="form" autocomplete="off" class="form" method="post">
 
                                         <div class="form-group">
                                             <div class="input-group">

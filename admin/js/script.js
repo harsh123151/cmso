@@ -24,11 +24,11 @@ $(document).ready(function () {
       $(this).remove()
     })
 })
-setInterval(function () {
-  $.get('includes/Functions.php?runfunction=useronline', (data) => {
-    $('.usersonline').text(data)
-  })
-}, 300)
+// setInterval(function () {
+//   $.get('includes/Functions.php?runfunction=useronline', (data) => {
+//     $('.usersonline').text(data)
+//   })
+// }, 300)
 $('.delete_link').on('click', function (event) {
   event.preventDefault()
   console.log('hello')

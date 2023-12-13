@@ -1,5 +1,9 @@
-<?php session_start()?>
+<?php include "classes/Session.php";?>
+<?php include "classes/Helper.php";?>
+<?php use MyApp\Session; ?>
+<?php use MyApp\Authentication; ?>
+<?php Session::start_session()?>
+<?php include "classes/Authentication.php";?>
 <?php
- session_unset();
- header("Location: /cms/index.php")
+ Authentication::logout_user();
 ?>

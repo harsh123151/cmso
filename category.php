@@ -1,6 +1,7 @@
-<?php include "includes/header.php";?>
-<?php include 'includes/db.php';?>
-<?php include "Functions/fetch_post.php";?>
+<?php include "includes/header.php";
+use MyApp\Session;
+use MyApp\Helper\Helper;
+?>
     <!-- Navigation -->
 <?php include "includes/navigation.php"?>
 
@@ -12,12 +13,12 @@
             <!-- Blog Entries Column -->
             <div class="col-md-8">
                 <?php
-                if(isset($_GET['cat_id'])){
-                 $cat_id = mysqli_real_escape_string($connection, $_GET['cat_id']);
-                 if(isset($_SESSION['user_role']) && $_SESSION['user_role']==='admin'){
-                    $result=fetch_specific_cat_post_admin($cat_id);
+                if(isset($_GET['cat_id'])){ 
+                 $cat_id =  $database->escape($_GET['cat_id']);
+                 if(Session::get_session('user_role') && Session::get_session('user_role')==='admin'){
+                    $result=Post::fetch_specific_cat_post_admin($cat_id);
                  }else{
-                    $result=fetch_specific_cat_post($cat_id);
+                    $result=Post::fetch_specific_cat_post($cat_id);
                  }
                  $count = mysqli_num_rows($result);
                  if($count<1){
@@ -42,11 +43,11 @@
                     <a href="post.php?p_id=<?php echo $post_id?>"><?php echo $post_title?></a>
                 </h2>
                 <p class="lead">
-                    by <a href="index.php"><?php echo $post_author?></a>
+                    by <a href="/cmso/index.php"><?php echo $post_author?></a>
                 </p>
                 <p><span class="glyphicon glyphicon-time"></span> Posted on <?php echo $post_date?></p>
                 <hr>
-                <img class="img-responsive" src="/cms/images/<?php echo $post_image?>" alt="">
+                <img class="img-responsive" src="/cmso/images/<?php echo $post_image?>" alt="">
                 <hr>
                 <p><?php echo $post_content?></p>
                 <a class="btn btn-primary" href="#">Read More <span class="glyphicon glyphicon-chevron-right"></span></a>
@@ -54,7 +55,7 @@
                 <hr>
                 <?php
                  }}}else{
-                    header("Location: index.php" );
+                    Helper::redirect("index");
                  }
                 ?>
                

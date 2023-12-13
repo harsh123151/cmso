@@ -1,3 +1,4 @@
+<?php use MyApp\Session; ?>
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -24,7 +25,7 @@
                                     </span>
                                     <div class="media-body">
                                         <h5 class="media-heading">
-                                            <strong><?PHP echo $_SESSION['username']?></strong>
+                                            <strong><?PHP echo Session::get_session('username')?></strong>
                                         </h5>
                                         <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
                                         <p>Lorem ipsum dolor sit amet, consectetur...</p>
@@ -70,7 +71,7 @@
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell"></i><?PHP echo $_SESSION['username']?> <b class="caret"></b></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell"></i><?PHP echo Session::get_session('username')?> <b class="caret"></b></a>
                     <ul class="dropdown-menu alert-dropdown">
                         <li>
                             <a href="#">Alert Name <span class="label label-default">Alert Badge</span></a>
@@ -99,7 +100,7 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i>
                     <?php 
-                        if(isset($_SESSION['username'])){
+                        if(Session::get_session('username')){
                             echo $_SESSION['username'];
                         }
                     ?> 
@@ -121,8 +122,13 @@
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav side-nav">
                     <li>
-                        <a href="index.php"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
+                        <a href="index.php"><i class="fa fa-fw fa-dashboard"></i> Mydata</a>
                     </li>
+                    <?php if(Validation::isAdmin()):?> 
+                    <li>
+                        <a href="dashboard.php"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
+                    </li>
+                    <?php endif;?>
                     
                     <li>
                         <a href="javascript:;" data-toggle="collapse" data-target="#posts_dropdown"><i class="fa fa-fw fa-arrows-v"></i> Posts <i class="fa fa-fw fa-caret-down"></i></a>

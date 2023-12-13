@@ -5,8 +5,8 @@
 <label class="form-label" for="cat_title">Edit Categories</label> 
 <?php
 if(isset($_GET['edit'])){
- $edit_id = escape($_GET['edit']);  
- $result = fetch_specific_cat($edit_id);
+ $edit_id = $database->escape($_GET['edit']);  
+ $result = Category::fetch_specific_cat($edit_id);
  while($row = mysqli_fetch_assoc($result)){
  $cat_title = $row['cat_title'];
 
